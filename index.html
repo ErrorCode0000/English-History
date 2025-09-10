@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İngilizce Tarihi Bilgi Testi (Rastgele 5 Soru)</title>
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: #f4f7f9;
+        color: #333;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+    }
+    .question-block {
+        margin-bottom: 25px;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fdfdfd;
+        transition: box-shadow 0.3s;
+    }
+    .question-block:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .question-text {
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+    }
+    .options label {
+        display: block;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #f9f9f9;
+        border: 1px solid #eee;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+    .options label:hover {
+        background-color: #e9f5ff;
+        border-color: #b3d7ff;
+    }
+    input[type="radio"] {
+        margin-right: 10px;
+    }
+    #submit-btn {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #fff;
+        background-color: #3498db;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 30px;
+        transition: background-color 0.3s;
+    }
+    #submit-btn:hover {
+        background-color: #2980b9;
+    }
+    #results {
+        text-align: center;
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .correct {
+        background-color: #d4edda !important;
+        border-color: #c3e6cb !important;
+    }
+    .incorrect {
+        background-color: #f8d7da !important;
+        border-color: #f5c6cb !important;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>İngilizce Tarihi Bilgi Testi</h1>
+    <p>Aşağıdaki <strong>rastgele seçilmiş 5 soruyu</strong> cevaplayarak metni ne kadar anladığınızı test edin. Testi bitirdiğinizde sonuçları görmek için butona tıklayın.</p>
+    <div id="quiz"></div>
+    <button id="submit-btn">Testi Bitir ve Sonuçları Gör</button>
+    <div id="results"></div>
+</div>
+
+<script>
+// 100 SORULUK VERİ HAVUZU
+const fullQuizData = [
+    { q: "İngilizce'nin en eski atası olarak kabul edilen ve yazılı bir örneği bulunmayan dil hangisidir?", o: ["Proto-Indo-European (PIE)", "Eski Latince", "Proto-Germanic", "Sanskrit"], a: "Proto-Indo-European (PIE)" },
+    { q: "Sanskrit, Antik Yunanca ve Latince arasındaki benzerliği fark ederek bu dillerin ortak bir kaynaktan geldiğini öne süren kişi kimdir?", o: ["Sir William Jones", "Jacob Grimm", "Geoffrey Chaucer", "Samuel Johnson"], a: "Sir William Jones" },
+    { q: "İngilizce, Almanca, Felemenkçe gibi dillerin dahil olduğu dil ailesinin ana dalı hangisidir?", o: ["Germanic", "Romance", "Slavic", "Celtic"], a: "Germanic" },
+    { q: "PIE dilindeki 'p', 't', 'k' seslerinin Germanic dillerde sırasıyla 'f', 'th', 'h' seslerine dönüşmesini açıklayan kural nedir?", o: ["Grimm's Law", "Verner's Law", "Great Vowel Shift", "Norman Rule"], a: "Grimm's Law" },
+    { q: "Latince 'pater' (baba) kelimesinin İngilizce 'father' olması hangi dilbilimsel kuralın bir örneğidir?", o: ["Grimm's Law", "Norman Etkisi", "Viking Etkisi", "Rönesans Etkisi"], a: "Grimm's Law" },
+    { q: "İngilizce'nin gerçek hikayesi, hangi kavimlerin Britanya'ya gelmesiyle başlar?", o: ["Angles, Saxons, Jutes", "Vikings, Normans", "Romans, Celts", "Greeks, Persians"], a: "Angles, Saxons, Jutes" },
+    { q: "Modern bir İngilizce konuşuru, Old English (Eski İngilizce) metnini anlayabilir mi?", o: ["Hayır, anlayamaz", "Evet, kolayca anlar", "Sadece bazı kelimeleri anlar", "Sadece yazılı halini anlar"], a: "Hayır, anlayamaz" },
+    { q: "Old English'in en belirgin gramer özelliği nedir?", o: ["Kelimelerin anlam göstermek için ek aldığı (inflected) bir dil olması", "Çok basit bir gramere sahip olması", "Sadece fiillerin çekimlenmesi", "Sabit bir kelime sırasına sahip olması"], a: "Kelimelerin anlam göstermek için ek aldığı (inflected) bir dil olması" },
+    { q: "Old English'de isimlerin kaç gramatik cinsi (gender) vardı?", o: ["3 (Masculine, Feminine, Neuter)", "2 (Masculine, Feminine)", "1 (Neuter)", "Cinsiyet yoktu"], a: "3 (Masculine, Feminine, Neuter)" },
+    { q: "8. yüzyılın sonlarından itibaren İngiltere'yi istila etmeye başlayan ve Old Norse dilini konuşan halk kimdir?", o: ["Vikingler", "Normanlar", "Romalılar", "Saksonlar"], a: "Vikingler" },
+    { q: "'sky', 'egg', 'leg', 'husband' gibi temel kelimeler İngilizce'ye hangi dilden geçmiştir?", o: ["Old Norse", "Fransızca", "Latince", "Keltçe"], a: "Old Norse" },
+    { q: "İngilizce'ye zamir (pronoun) hediye eden dil hangisidir? ('they', 'their', 'them')", o: ["Old Norse", "Fransızca", "Latince", "Yunanca"], a: "Old Norse" },
+    { q: "Viking istilalarının İngilizce grameri üzerindeki en büyük etkisi ne olmuştur?", o: ["Karmaşık ekleri basitleştirerek grameri daha esnek hale getirmesi", "Grameri daha da karmaşıklaştırması", "Yeni zaman kipleri eklemesi", "Kelime sırasını tamamen serbest bırakması"], a: "Karmaşık ekleri basitleştirerek grameri daha esnek hale getirmesi" },
+    { q: "İngiliz dili tarihinde tek en önemli yıl olarak kabul edilen 1066'da hangi olay gerçekleşti?", o: ["Norman Fethi (Norman Conquest)", "Viking İstilalarının Başlaması", "Matbaanın İcadı", "Shakespeare'in Doğumu"], a: "Norman Fethi (Norman Conquest)" },
+    { q: "1066'dan sonra İngiltere'de sarayın, hükümetin ve mahkemelerin dili ne oldu?", o: ["Fransızca", "İngilizce", "Latince", "Old Norse"], a: "Fransızca" },
+    { q: "Norman Fethi'nden sonraki 300 yıl boyunca kilise ve öğrenim dili neydi?", o: ["Latince", "Fransızca", "İngilizce", "Yunanca"], a: "Latince" },
+    { q: "Norman Fethi sonrası dönemde İngilizce'yi kimler konuşuyordu?", o: ["Çiftliklerde çalışan fakir, sıradan halk", "Sadece soylular ve kraliyet ailesi", "Sadece din adamları", "Tüccarlar ve askerler"], a: "Çiftliklerde çalışan fakir, sıradan halk" },
+    { q: "Middle English döneminde Old English'in karmaşık gramer sistemine ne oldu?", o: ["Tamamen çöktü ve kelime sonlarındaki ekler kayboldu", "Daha da karmaşık hale geldi", "Değişmeden aynı kaldı", "Latince gramer sistemiyle birleşti"], a: "Tamamen çöktü ve kelime sonlarındaki ekler kayboldu" },
+    { q: "Modern İngilizce'deki Subject-Verb-Object (SVO) kelime sırası hangi dönemde standartlaşmaya başladı?", o: ["Middle English", "Old English", "Early Modern English", "Late Modern English"], a: "Middle English" },
+    { q: "'government', 'parliament', 'justice', 'crime' gibi yönetim ve hukuk kelimeleri İngilizce'ye hangi dilden girmiştir?", o: ["Fransızca", "Old Norse", "Latince", "Almanca"], a: "Fransızca" },
+    { q: "'beef', 'pork', 'mutton' gibi pişmiş et isimleri İngilizce'ye hangi dilden gelmiştir?", o: ["Fransızca", "Old English", "İspanyolca", "İtalyanca"], a: "Fransızca" },
+    { q: "Canlı hayvan isimleri (cow, pig, sheep) genellikle hangi kökene aittir?", o: ["Old English", "Fransızca", "Latince", "Keltçe"], a: "Old English" },
+    { q: "İngilizce'deki zengin eş anlamlı kelime (synonym) varlığının temel sebebi nedir?", o: ["Germanic (Old English) ve Romance (Fransızca) kelimelerin bir arada bulunması", "Sadece Latince'den kelime alınması", "Shakespeare'in tüm kelimeleri icat etmesi", "Vikinglerin çok fazla kelime getirmesi"], a: "Germanic (Old English) ve Romance (Fransızca) kelimelerin bir arada bulunması" },
+    { q: "1300'lerde İngilizce'nin yeniden yükselişini simgeleyen ve 'The Canterbury Tales' adlı eseri yazan şair kimdir?", o: ["Geoffrey Chaucer", "William Shakespeare", "John Milton", "Samuel Johnson"], a: "Geoffrey Chaucer" },
+    { q: "Geoffrey Chaucer'ın eserlerini yazarken kullandığı ve daha sonra 'Standart İngilizce'nin temeli olan lehçe hangisidir?", o: ["Londra Lehçesi", "Northumbrian Lehçesi", "Mercian Lehçesi", "Kentish Lehçesi"], a: "Londra Lehçesi" },
+    { q: "Early Modern English dönemindeki en büyük telaffuz değişikliği olayına ne ad verilir?", o: ["The Great Vowel Shift", "The Norman Conquest", "The Renaissance", "The Industrial Revolution"], a: "The Great Vowel Shift" },
+    { q: "İngilizce'deki yazım (spelling) kurallarının günümüz telaffuzuna göre tuhaf olmasının ana nedeni nedir?", o: ["Yazımın, telaffuzun büyük bir değişim geçirdiği 'Great Vowel Shift' sırasında sabitlenmesi", "Fransız katiplerin kelimeleri yanlış yazması", "Vikinglerin okuma yazma bilmemesi", "Latince kurallarının zorla uygulanması"], a: "Yazımın, telaffuzun büyük bir değişim geçirdiği 'Great Vowel Shift' sırasında sabitlenmesi" },
+    { q: "1476'da William Caxton tarafından icat edilen ve İngilizce'nin standartlaşmasına büyük katkı sağlayan teknoloji nedir?", o: ["Matbaa (Printing Press)", "Telgraf", "Telefon", "Radyo"], a: "Matbaa (Printing Press)" },
+    { q: "Rönesans döneminde bilim, tıp ve sanat gibi alanlardaki yeni fikirler için İngilizce'ye hangi dillerden binlerce akademik kelime girmiştir?", o: ["Latince ve Yunanca", "Fransızca ve İspanyolca", "Old Norse ve Almanca", "Hintçe ve Arapça"], a: "Latince ve Yunanca" },
+    { q: "'atmosphere', 'education', 'skeleton' gibi kelimeler hangi dönemde İngilizce'ye girmiştir?", o: ["Early Modern English (Rönesans)", "Old English", "Middle English", "Late Modern English"], a: "Early Modern English (Rönesans)" },
+    { q: "İngilizce'ye 1700'den fazla yeni kelime ve yüzlerce deyim kazandırdığı söylenen yazar kimdir?", o: ["William Shakespeare", "Geoffrey Chaucer", "Charles Dickens", "Jane Austen"], a: "William Shakespeare" },
+    { q: "'break the ice' (buzları kırmak) deyimini İngilizce'ye kazandıran kimdir?", o: ["William Shakespeare", "Samuel Johnson", "Kraliçe Elizabeth", "Jacob Grimm"], a: "William Shakespeare" },
+    { q: "18. yüzyılda (Late Modern English) İngilizce'yi organize etme, kurallar koyma ve 'düzeltme' arzusuna ne ad verilir?", o: ["Prescriptive Grammar (Kuralcı Dilbilgisi)", "Descriptive Grammar (Tanımlayıcı Dilbilgisi)", "The Great Vowel Shift", "The English Renaissance"], a: "Prescriptive Grammar (Kuralcı Dilbilgisi)" },
+    { q: "1755'te yayımlanan ve İngilizce'nin yazımını ve kelime anlamlarını standartlaştıran 'A Dictionary of the English Language' adlı eserin yazarı kimdir?", o: ["Samuel Johnson", "William Shakespeare", "Noah Webster", "William Caxton"], a: "Samuel Johnson" },
+    { q: "Sanayi Devrimi (Industrial Revolution) hangi tür kelimelerin doğmasına neden olmuştur?", o: ["Makineler ve bilimsel icatlar için yeni kelimeler (train, engine, telephone)", "Sadece tarım kelimeleri", "Sadece askeri kelimeler", "Sadece dini kelimeler"], a: "Makineler ve bilimsel icatlar için yeni kelimeler (train, engine, telephone)" },
+    { q: "Britanya İmparatorluğu'nun genişlemesi İngilizce'yi nasıl etkilemiştir?", o: ["İngilizce'yi dünyaya yaymış ve karşılaştığı dillerden kelimeler almasını sağlamıştır", "İngilizce'nin sadece İngiltere'de konuşulmasına neden olmuştur", "Dilin kelime haznesini fakirleştirmiştir", "Dilin gramerini tamamen değiştirmiştir"], a: "İngilizce'yi dünyaya yaymış ve karşılaştığı dillerden kelimeler almasını sağlamıştır" },
+    { q: "'shampoo', 'pyjamas', 'jungle' kelimeleri İngilizce'ye hangi bölgedeki dilden geçmiştir?", o: ["Hindistan", "Afrika", "Avustralya", "Kuzey Amerika"], a: "Hindistan" },
+    { q: "'zombie' ve 'voodoo' kelimeleri hangi kıtadan gelmektedir?", o: ["Afrika", "Asya", "Avrupa", "Güney Amerika"], a: "Afrika" },
+    { q: "'kangaroo' ve 'boomerang' kelimeleri hangi kıtaya aittir?", o: ["Avustralya", "Afrika", "Kuzey Amerika", "Asya"], a: "Avustralya" },
+    { q: "20. yüzyılda Amerikan filmleri, müziği ve teknolojisi sayesinde en yaygın duyulan İngilizce türü hangisi olmuştur?", o: ["American English (AmE)", "British English (BrE)", "Australian English", "Indian English"], a: "American English (AmE)" },
+    { q: "Amerikan İngilizcesi (AmE) ve Britanya İngilizcesi (BrE) arasındaki farklara bir örnek nedir?", o: ["Yazım farkları (color vs colour)", "Gramer farkı olmaması", "Aynı kelimeleri kullanmaları", "Telaffuzlarının aynı olması"], a: "Yazım farkları (color vs colour)" },
+    { q: "Hindistan, Nijerya, Singapur gibi ülkelerde konuşulan yerel İngilizce türlerine ne ad verilir?", o: ["World Englishes", "Broken English", "Standard English", "Old English"], a: "World Englishes" },
+    { q: "Günümüzde İngilizce'yi anadili olarak konuşanların sayısı mı, yoksa ikinci dil olarak konuşanların sayısı mı daha fazladır?", o: ["İkinci dil olarak konuşanların sayısı daha fazladır", "Anadili olarak konuşanların sayısı daha fazladır", "Sayıları eşittir", "Bu konuda veri yoktur"], a: "İkinci dil olarak konuşanların sayısı daha fazladır" },
+    { q: "Metne göre İngilizce'nin küresel başarısının sırrı nedir?", o: ["Germanic gramer basitliği ile Romance (Fransızca) kelime zenginliğinin birleşimi", "Dilin hiç değişmemiş olması", "Sadece Latince'den kelime alması", "Karmaşık gramer yapısı"], a: "Germanic gramer basitliği ile Romance (Fransızca) kelime zenginliğinin birleşimi" },
+    { q: "İngilizce'nin 'saf' bir dil olmamasının sebebi nedir?", o: ["Tarihi boyunca sürekli başka dillerle karışması ve onlardan kelime alması", "Sadece bir kabile tarafından konuşulması", "Hiç yazılı kuralının olmaması", "Sadece son 50 yılda değişmesi"], a: "Tarihi boyunca sürekli başka dillerle karışması ve onlardan kelime alması" },
+    { q: "Latince 'tres' (üç) kelimesinin İngilizce 'three' olması hangi kuralın bir örneğidir?", o: ["Grimm's Law", "Norman Conquest", "Great Vowel Shift", "Johnson's Dictionary"], a: "Grimm's Law" },
+    { q: "Hangi olaydan sonra İngiltere'de 300 yıl boyunca üç dil (Fransızca, Latince, İngilizce) bir arada kullanılmıştır?", o: ["Norman Fethi", "Viking İstilaları", "Sanayi Devrimi", "Rönesans"], a: "Norman Fethi" },
+    { q: "Chaucer'ın zamanında 'house' kelimesi nasıl telaffuz ediliyordu?", o: ["'hoos' (goose gibi)", "'hause' (mouse gibi)", "'haas'", "'hoss'"], a: "'hoos' (goose gibi)" },
+    { q: "'all that glitters is not gold' (parlayan her şey altın değildir) sözü kiminle özdeşleşmiştir?", o: ["William Shakespeare", "Geoffrey Chaucer", "Kral Arthur", "Winston Churchill"], a: "William Shakespeare" },
+    { q: "İngilizce'nin ait olduğu en büyük dil ailesi hangisidir?", o: ["Indo-European (Hint-Avrupa)", "Ural-Altay", "Afro-Asiatic", "Sino-Tibetan"], a: "Indo-European (Hint-Avrupa)" },
+    { q: "İngiltere'ye gelen Anglo-Saksonlar hangi coğrafyadan yola çıkmışlardır?", o: ["Günümüz Almanya ve Danimarka'sı", "Günümüz İtalya ve Yunanistan'ı", "Günümüz Rusya ve Polonya'sı", "Günümüz İspanya ve Portekiz'i"], a: "Günümüz Almanya ve Danimarka'sı" },
+    { q: "Vikingler ve Anglo-Saksonlar'ın dillerinin birbirine 'kuzen' olmasının sebebi nedir?", o: ["Her ikisinin de Germanic dil ailesinden gelmesi", "Her ikisinin de Latin kökenli olması", "Aynı alfabeyi kullanmaları", "İki halkın da Romalı olması"], a: "Her ikisinin de Germanic dil ailesinden gelmesi" },
+    { q: "'ask' (İngilizce) ve 'question' (Fransızca kökenli) gibi kelimelerin varlığı İngilizce'ye ne kazandırmıştır?", o: ["Zengin bir eş anlamlı kelime dağarcığı", "Anlam karmaşası", "Daha basit bir gramer", "Telaffuz zorlukları"], a: "Zengin bir eş anlamlı kelime dağarcığı" },
+    { q: "Matbaanın İngilizce üzerindeki en önemli etkisi ne olmuştur?", o: ["Yazım ve grameri standartlaştırması", "İnsanların okuma yazma öğrenmesini engellemesi", "Sadece Latince kitapların basılması", "Dilin daha hızlı değişmesine neden olması"], a: "Yazım ve grameri standartlaştırması" },
+    { q: "Samuel Johnson'ın sözlüğü ne kadar sürede tamamlanmıştır?", o: ["9 yıl", "1 yıl", "20 yıl", "6 ay"], a: "9 yıl" },
+    { q: "American English'de 'truck' denilen araca British English'de ne denir?", o: ["lorry", "car", "van", "wagon"], a: "lorry" },
+    { q: "İngilizce'nin geleceğinin sadece Londra veya New York'ta değil, Mumbai veya Pekin'deki konuşurlar tarafından da şekillendirileceği fikri neyi ifade eder?", o: ["İngilizce'nin küreselleştiğini ve sahipliğinin değiştiğini", "İngilizce'nin yakında yok olacağını", "Sadece Asya'da konuşulacağını", "İngilizce'nin basitleşeceğini"], a: "İngilizce'nin küreselleştiğini ve sahipliğinin değiştiğini" },
+    { q: "Hangi dönem 'Warriors and Vikings' (Savaşçılar ve Vikingler) Çağı olarak adlandırılır?", o: ["Old English", "Middle English", "Early Modern English", "Late Modern English"], a: "Old English" },
+    { q: "Hangi olay 'The French Revolution' (Fransız Devrimi) olarak adlandırılan dilsel değişime yol açmıştır?", o: ["Norman Fethi", "Viking İstilaları", "Rönesans", "Sanayi Devrimi"], a: "Norman Fethi" },
+    { q: "İnternet ve sosyal medya, İngilizce'yi günümüzde nasıl etkilemektedir?", o: ["Yeni kelimelerin ve konuşma tarzlarının hızla ortaya çıkmasını sağlamaktadır", "Dilin değişmesini tamamen durdurmuştur", "Sadece eski kelimelerin kullanılmasını teşvik etmektedir", "İngilizce'yi daha resmi bir dil yapmaktadır"], a: "Yeni kelimelerin ve konuşma tarzlarının hızla ortaya çıkmasını sağlamaktadır" },
+    { q: "Beowulf şiiri hangi dilde yazılmıştır?", o: ["Old English", "Middle English", "Latin", "Old Norse"], a: "Old English" },
+    { q: "1362 yılında İngiltere'de mahkemelerin resmi dili yeniden ne olmuştur?", o: ["İngilizce", "Fransızca", "Latince", "Galce"], a: "İngilizce" },
+    { q: "Great Vowel Shift, dilin hangi özelliğini etkilemiştir?", o: ["Telaffuz (Pronunciation)", "Gramer (Grammar)", "Kelime Haznesi (Vocabulary)", "Yazım (Spelling)"], a: "Telaffuz (Pronunciation)" },
+    { q: "Britanya İmparatorluğu'nun en geniş olduğu dönemde İngilizce'nin yayılmasıyla hangi sonuç ortaya çıkmıştır?", o: ["İngilizce bir dünya dili haline gelmiştir", "Sadece soylular İngilizce konuşmuştur", "Dil, diğer dillerden etkilenmemiştir", "Yazım kuralları basitleşmiştir"], a: "İngilizce bir dünya dili haline gelmiştir" },
+    { q: "American English'deki 'apartment' kelimesinin British English'deki karşılığı nedir?", o: ["flat", "condo", "house", "room"], a: "flat" },
+    { q: "Proto-Germanic, hangi büyük dil grubundan ayrılmıştır?", o: ["Proto-Indo-European", "Proto-Slavic", "Proto-Romance", "Proto-Celtic"], a: "Proto-Indo-European" },
+    { q: "Roma İmparatorluğu'nun Britanya'dan çekilmesi hangi kavimlerin adaya gelmesine zemin hazırlamıştır?", o: ["Anglo-Saksonlar", "Normanlar", "Vikingler", "Galyalılar"], a: "Anglo-Saksonlar" },
+    { q: "Old Norse ve Old English arasındaki etkileşim neden diğer dil etkileşimlerinden daha yoğundu?", o: ["İki dilin de aynı Germanic kökenden gelmesi ve konuşurların birbirini bir dereceye kadar anlaması", "Vikinglerin yazıyı icat etmesi", "Saksonların Viking tanrılarına tapması", "Her iki dilin de Latince alfabesi kullanması"], a: "İki dilin de aynı Germanic kökenden gelmesi ve konuşurların birbirini bir dereceye kadar anlaması" },
+    { q: "Middle English döneminde İngilizce'nin resmi bir dil olmamasının getirdiği en önemli sonuç nedir?", o: ["Dilin kontrolsüz bir şekilde çok hızlı değişmesi ve basitleşmesi", "Dilin tamamen unutulması", "Sadece tek bir lehçenin kalması", "Yeni kelime girişinin durması"], a: "Dilin kontrolsüz bir şekilde çok hızlı değişmesi ve basitleşmesi" },
+    { q: "Shakespeare'in eserleri, hangi İngilizce döneminin en parlak örneklerindendir?", o: ["Early Modern English", "Old English", "Middle English", "Late Modern English"], a: "Early Modern English" },
+    { q: "1700'lerde 'kuralcı dilbilgisi' (prescriptive grammar) akımının amacı neydi?", o: ["İngilizce'yi Latince gibi kuralları olan 'düzgün' bir dil haline getirmek", "İngilizce'yi basitleştirmek", "Fransızca kelimeleri dilden atmak", "Herkesin aynı aksanla konuşmasını sağlamak"], a: "İngilizce'yi Latince gibi kuralları olan 'düzgün' bir dil haline getirmek" },
+    { q: "Sanayi Devrimi sırasında 'biology' ve 'camera' gibi kelimelerin ortaya çıkması neyin göstergesidir?", o: ["Bilim ve teknolojideki gelişmelerin yeni kelimelere ihtiyaç duyması", "Dilin fakirleştiğinin", "Fransızca etkisinin arttığının", "Eski kelimelerin yeniden canlandığının"], a: "Bilim ve teknolojideki gelişmelerin yeni kelimelere ihtiyaç duyması" },
+    { q: "İngilizce'nin küresel bir dil olması, 'ownership' (sahiplik) kavramını nasıl değiştirmiştir?", o: ["Dil artık sadece İngiltere veya ABD'ye ait değil, tüm dünyadaki konuşurlarına aittir", "Dilin tek sahibi Kraliçe'dir", "Sadece Amerikalılar dile yeni kelime ekleyebilir", "Dilin sahibi kalmamıştır"], a: "Dil artık sadece İngiltere veya ABD'ye ait değil, tüm dünyadaki konuşurlarına aittir" },
+    { q: "Latince 'cordis' (kalp) kelimesinin İngilizce 'heart' olması hangi kuralın bir örneğidir?", o: ["Grimm's Law", "The Great Vowel Shift", "Norman Influence", "Viking Borrowing"], a: "Grimm's Law" },
+    { q: "'William the Conqueror' hangi dili konuşan bir dük idi?", o: ["Fransızca", "İngilizce", "Latince", "Norveççe"], a: "Fransızca" },
+    { q: "Halkın konuştuğu İngilizce ile yönetici sınıfın konuştuğu Fransızca arasındaki ayrım en çok hangi alanda kendini göstermiştir?", o: ["Yemek kelimeleri (hayvan vs et)", "Sayılar", "Aile bireyleri", "Haftanın günleri"], a: "Yemek kelimeleri (hayvan vs et)" },
+    { q: "İngilizce yazımının standartlaşmasında en büyük rolü oynayan iki gelişme hangileridir?", o: ["Matbaanın icadı ve Samuel Johnson'ın sözlüğü", "Viking ve Norman istilaları", "Rönesans ve Sanayi Devrimi", "Shakespeare'in oyunları ve Chaucer'ın şiirleri"], a: "Matbaanın icadı ve Samuel Johnson'ın sözlüğü" },
+    { q: "Bir dilin 'inflected' olması ne anlama gelir?", o: ["Kelime anlamlarının kelime sonlarına gelen eklerle belirlenmesi", "Kelime sırasının çok katı olması", "Çok az kelimeye sahip olması", "Sadece fiillerin değişmesi"], a: "Kelime anlamlarının kelime sonlarına gelen eklerle belirlenmesi" },
+    { q: "Hangi olay, İngilizce'nin gramerinin basitleşmesinde önemli bir 'katalizör' rolü oynamıştır?", o: ["Viking istilaları ve Old Norse ile temas", "Norman Fethi", "Romalıların çekilmesi", "Sanayi Devrimi"], a: "Viking istilaları ve Old Norse ile temas" },
+    { q: "Modern programlama dillerinin ve dokümantasyonlarının çoğunlukla İngilizce olması, bu dilin hangi alandaki önemini vurgular?", o: ["Teknoloji ve internet", "Sadece edebiyat", "Tarım", "Askeri alan"], a: "Teknoloji ve internet" },
+    { q: "Metne göre İngilizce'nin hikayesi, en temelde bir ... hikayesidir.", o: ["karışım (mixing)", "saflık (purity)", "durgunluk (stagnation)", "izolasyon (isolation)"], a: "karışım (mixing)" },
+    { q: "İngiltere'nin 300 yıl boyunca üç dilli bir ülke olması hangi döneme denk gelir?", o: ["Middle English", "Old English", "Early Modern English", "Late Modern English"], a: "Middle English" },
+    { q: "Günümüzde İngilizce konuşanların çoğunluğunu kimler oluşturur?", o: ["İngilizce'yi ikinci veya yabancı dil olarak öğrenenler", "İngiltere'de doğanlar", "ABD'de doğanlar", "Avustralya'da doğanlar"], a: "İngilizce'yi ikinci veya yabancı dil olarak öğrenenler" },
+    { q: "Aşağıdakilerden hangisi Shakespeare'in İngilizce'ye kattığı ifade edilen bir deyim değildir?", o: ["To be or not to be", "'break the ice'", "'wild-goose chase'", "'heart of gold'"], a: "To be or not to be" },
+    { q: "Hangi gelişme daha fazla insanın okuma-yazma öğrenmesine ve aynı türde bir İngilizce ile karşılaşmasına olanak tanımıştır?", o: ["Matbaanın icadı", "Radyonun icadı", "Televizyonun icadı", "İnternetin icadı"], a: "Matbaanın icadı" },
+    { q: "İngilizce'nin temel yapısı (core) hangi dil ailesine aittir?", o: ["Germanic", "Romance", "Celtic", "Slavic"], a: "Germanic" },
+    { q: "İngilizce'nin kelime dağarcığının (vocabulary) çok büyük bir kısmı hangi dil ailesinden etkilenmiştir?", o: ["Romance (Fransızca aracılığıyla)", "Germanic", "Slavic", "Hint dilleri"], a: "Romance (Fransızca aracılığıyla)" },
+    { q: "1066'daki Norman Fethi'ni kim yönetmiştir?", o: ["William the Conqueror", "King Harold", "Julius Caesar", "Leif Erikson"], a: "William the Conqueror" },
+    { q: "'World Englishes' terimi neyi ifade eder?", o: ["İngilizce'nin dünya çapında gelişen farklı yerel çeşitlerini", "Sadece İngiltere'de konuşulan İngilizce'yi", "İngilizce'nin en eski halini", "Amerikan ve İngiliz İngilizcesi arasındaki farkları"], a: "İngilizce'nin dünya çapında gelişen farklı yerel çeşitlerini" },
+    { q: "Samuel Johnson'ın 1755'teki eseri ne tür bir kitaptı?", o: ["Sözlük (Dictionary)", "Roman (Novel)", "Şiir Kitabı (Poetry Book)", "Tiyatro Oyunu (Play)"], a: "Sözlük (Dictionary)" },
+    { q: "İngilizce'nin hikayesinin başlangıcı hangi coğrafi bölgeye dayanır?", o: ["Avrupa'nın küçük bir köşesi", "Kuzey Amerika", "Hindistan", "Orta Doğu"], a: "Avrupa'nın küçük bir köşesi" },
+];
+
+const quizContainer = document.getElementById('quiz');
+const submitButton = document.getElementById('submit-btn');
+const resultsContainer = document.getElementById('results');
+
+let currentQuestions = [];
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function buildQuiz() {
+    // 1. Ana veri setini karıştır
+    shuffle(fullQuizData);
+    
+    // 2. İlk 5 soruyu seç
+    currentQuestions = fullQuizData.slice(0, 5);
+
+    const output = [];
+
+    currentQuestions.forEach((questionData, questionNumber) => {
+        const options = [];
+        const shuffledOptions = [...questionData.o];
+        shuffle(shuffledOptions);
+
+        shuffledOptions.forEach(option => {
+            options.push(
+                `<label>
+                    <input type="radio" name="question${questionNumber}" value="${option}">
+                    ${option}
+                </label>`
+            );
+        });
+
+        output.push(
+            `<div class="question-block">
+                <div class="question-text">${questionNumber + 1}. ${questionData.q}</div>
+                <div class="options">${options.join('')}</div>
+            </div>`
+        );
+    });
+
+    quizContainer.innerHTML = output.join('');
+}
+
+function showResults() {
+    const answerContainers = quizContainer.querySelectorAll('.options');
+    let numCorrect = 0;
+    
+    submitButton.disabled = true;
+
+    currentQuestions.forEach((questionData, questionNumber) => {
+        const answerContainer = answerContainers[questionNumber];
+        const selector = `input[name=question${questionNumber}]:checked`;
+        const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+        const labels = answerContainer.querySelectorAll('label');
+        labels.forEach(label => {
+            const input = label.querySelector('input');
+            if (input.value === questionData.a) {
+                label.classList.add('correct'); // Doğru şıkkı her zaman yeşil yap
+            }
+            if (input.checked && userAnswer !== questionData.a) {
+                label.classList.add('incorrect'); // Kullanıcının yanlış seçimini kırmızı yap
+            }
+        });
+
+        if (userAnswer === questionData.a) {
+            numCorrect++;
+        }
+    });
+
+    resultsContainer.innerHTML = `Sonuç: ${numCorrect} / ${currentQuestions.length} doğru!`;
+    resultsContainer.style.backgroundColor = numCorrect >= 3 ? '#d4edda' : '#f8d7da';
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
+// Testi başlat
+buildQuiz();
+
+// Butona tıklama olayını ekle
+submitButton.addEventListener('click', showResults);
+
+</script>
+
+</body>
+</html>
