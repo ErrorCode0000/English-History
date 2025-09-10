@@ -1,4 +1,4 @@
-A Detailed History of the English Language (For Intermediate Learners)
+A Detailed History of the English Language
 Introduction: The Surprising Story of English
 Today, English is everywhere. It is the most widely spoken language in the world. Around 1.5 billion people use it for communication. It is the number one language for international business, for science, for travel, and for the internet. For a future software developer like you, English is especially important because almost all programming languages and documentation are in English.
 
